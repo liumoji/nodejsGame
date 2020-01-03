@@ -111,7 +111,7 @@ module.exports = class Application {
         }
       }
       else {
-        self.logger.warn('app必须实现 gameExit接口!');
+        self.logger.warn('app必须实现 gameExit接口, 服务将退出!');
         misc.EXIT(1);
       }
     });
@@ -148,7 +148,7 @@ module.exports = class Application {
     });
 
     process.on('unhandledRejection', function (err) {
-      self.logger.error(`caught unhandledRejection : ${err.stack}`);
+      self.logger.error(`caught unhandledRejection : ${err}\n${err.stack}`);
     });
 
     self.logger.info("Running...");
@@ -225,13 +225,13 @@ module.exports = class Application {
       check_failed = true;
     }
     if (!obj.redis || !obj.redis.host || !obj.redis.port || !obj.redis.db) {
-      self.logger.error(`redis配置错误，请检查配置:${self.gameCfg}`);
-      check_failed = true;
+      self.logger.warn(`redis中心信息未配置，将以独立服模式运行...`);
+      //check_failed = true;
     }
 
     if (obj.hasOwnProperty('forClient')) {
       let found = false;
-      for(let i=0; i < self.svrCfgObj.listen.length; i++){
+      for (let i = 0; i < self.svrCfgObj.listen.length; i++) {
         let listen = self.svrCfgObj.listen[i];
         if (listen && listen.lid == obj.forClient) {
           found = true;
@@ -248,7 +248,7 @@ module.exports = class Application {
 
     if (obj.hasOwnProperty('forBattle')) {
       let found = false;
-      for(let i=0; i < self.svrCfgObj.listen.length; i++){
+      for (let i = 0; i < self.svrCfgObj.listen.length; i++) {
         let listen = self.svrCfgObj.listen[i];
         if (listen && listen.lid == obj.forBattle) {
           found = true;
@@ -265,7 +265,7 @@ module.exports = class Application {
 
     if (obj.hasOwnProperty('forGateway')) {
       let found = false;
-      for(let i=0; i < self.svrCfgObj.listen.length; i++){
+      for (let i = 0; i < self.svrCfgObj.listen.length; i++) {
         let listen = self.svrCfgObj.listen[i];
         if (listen && listen.lid == obj.forGateway) {
           found = true;
@@ -282,7 +282,7 @@ module.exports = class Application {
 
     if (obj.hasOwnProperty('forOnline')) {
       let found = false;
-      for(let i=0; i < self.svrCfgObj.listen.length; i++){
+      for (let i = 0; i < self.svrCfgObj.listen.length; i++) {
         let listen = self.svrCfgObj.listen[i];
         if (listen && listen.lid == obj.forOnline) {
           found = true;
@@ -299,7 +299,7 @@ module.exports = class Application {
 
     if (obj.hasOwnProperty('forPay')) {
       let found = false;
-      for(let i=0; i < self.svrCfgObj.listen.length; i++){
+      for (let i = 0; i < self.svrCfgObj.listen.length; i++) {
         let listen = self.svrCfgObj.listen[i];
         if (listen && listen.lid == obj.forPay) {
           found = true;
@@ -373,21 +373,20 @@ module.exports = class Application {
     }
 
     if (check_failed) {
+      self.logger.error(`Check config found error, server going to exit!`);
       misc.EXIT(1);
     }
   }
 
   _checkApi() {
-    // TODO: 此处扩展检查框架要求app实现的API
     self.apiList = ['gameInit',
-      'processClientMessage',  //框架处理到 handler, 在找不具体的业务handler时调用
+      'processClientMessage',  //框架处理的 handler, 在找不具体的业务handler时调用
       'processRedisCenterCtrlMessage',
       'processRedisCenterNewServerMessage',
-      //'processRedisCenterChatMessage',  // 聊天API可选
       'gameExit'];
     self.apiList.forEach((api, idx) => {
       if (!self.apiObj || typeof self.apiObj[api] !== 'function') {
-        self.logger.error(`${self.api} 中未实现框架接口: [${api}]`);
+        self.logger.error(`${self.api} the API was not implemented: [${api}], server going to exit!`);
         misc.EXIT(1);
       }
     });
@@ -455,13 +454,11 @@ module.exports = class Application {
       self.logger.trace(`${net}, ${reason}`);
       if (typeof net.tmClose === 'function') net.tmClose();
     };
-
-    // TODO: 此处扩展框架暴露给app使用的API
   }
 
   async  _connect2Dependency() {
     //所有服依赖中心服，当前设计去掉 switch，直接以 redis为中心，因必依赖redis
-    self._startRedisCenter();
+    if (self.gameCfgObj.redis) self._startRedisCenter();
     await self._startConnect();
   }
 
@@ -518,10 +515,10 @@ module.exports = class Application {
         netOpt = {};
         Object.assign(netOpt, self.svrCfgObj.listen[idx]);
         let netSvr = null;
-        if (netOpt && ['http', 'https'].indexOf(netOpt.schema)>=0 && self.apiObj.express) {
+        if (netOpt && ['http', 'https'].indexOf(netOpt.schema) >= 0 && self.apiObj.express) {
           netSvr = new ListenNetClass(netOpt, self.apiObj.express);
         }
-        else{
+        else {
           netSvr = new ListenNetClass(netOpt, (net, msg) => {
             if (net && net.side && net.schema && typeof net.tmSendData === 'function') {
               self._dispatchMessage(net.schema, net, msg);
@@ -536,7 +533,7 @@ module.exports = class Application {
           await iterListen(++idx);
           self.svrListeners[netSvr.id] = netSvr;
         }).catch(e => {
-          self.logger.error(`create listen on failed: ${e}`);
+          self.logger.error(`create listen on failed: ${e}, server going to exit.`);
           misc.EXIT(1);
         });
       }
@@ -564,7 +561,7 @@ module.exports = class Application {
     }
 
     // 框架自动注册的channel
-    if (typeof self.apiObj.processRedisCenterChatMessage === 'function'){
+    if (typeof self.apiObj.processRedisCenterChatMessage === 'function') {
       self.redisCenter.subscribeForChat(self.apiObj.processRedisCenterChatMessage);
     }
     self.redisCenter.subscribeForCtrlCmd(self.apiObj.processRedisCenterCtrlMessage);
@@ -594,7 +591,7 @@ module.exports = class Application {
         self.propList.forEach((prop, idx) => {
           if (typeof netClt[prop] !== 'string' || netClt[prop].length === 0) {
             const s = JSON.stringify(netOpt);
-            self.logger.error(`${s} 网络类未实现属性: [${prop}]`);
+            self.logger.error(`${s} not support net type: [${prop}], server going to exit!`);
             misc.EXIT(1);
           }
         });
@@ -603,7 +600,7 @@ module.exports = class Application {
           await iterConnect(++idx);
           self.cltConnections[netClt.id] = netClt;
         }).catch(e => {
-          self.logger.error(`create connect on failed: ${e}`);
+          self.logger.error(`create connect on failed: ${e}, server going to exit.!`);
           misc.EXIT(1);
         });
       }

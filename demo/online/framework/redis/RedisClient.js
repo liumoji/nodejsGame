@@ -117,7 +117,7 @@ RedisClient.prototype.keyGet = function(key, cb) {
 };
 // 判断 key 是否存在
 RedisClient.prototype.keyExist = function(key, cb) {
-  this.commConn.exist(key,cb);
+  this.commConn.exists(key,cb);
 };
 // 不支持游戏直接模糊搜索key， 避免数量大时影响常规访问
 //RedisClient.prototype.keys = function(key, pattern) {
@@ -135,7 +135,8 @@ RedisClient.prototype.keyExpire = function(key, seconds, cb) {
   this.commConn.expire(key, seconds, cb);
 };
 RedisClient.prototype.keyExpireAt = function(key, timestamp, cb) {
-  if (key.indexOf(HASH_PREV) === 0 || key.indexOf(SET_PREV) === 0 || key.indexOf(SORTED_SET_PREV) === 0 || key.indexOf(LIST_PREV) === 0){
+  //if (key.indexOf(HASH_PREV) === 0 || key.indexOf(SET_PREV) === 0 || key.indexOf(SORTED_SET_PREV) === 0 || key.indexOf(LIST_PREV) === 0){
+  if (key.indexOf(HASH_PREV)  &&  key.indexOf(SET_PREV)  && key.indexOf(SORTED_SET_PREV)  &&  key.indexOf(LIST_PREV)){
     return cb('error', 'keyExpireAt key must not use hash/list/set/zset prefix.');
   }
   this.commConn.expireat(key, timestamp, cb);
@@ -482,7 +483,7 @@ RedisClient.prototype.lLen = function(lKey, cb) {
 // 向列表左侧(头部)压入一个值
 RedisClient.prototype.lLPush = function(lKey, value, cb) {
   lKey = LIST_PREV + lKey;
-  this.commConn.lpush(lKey, cb);
+  this.commConn.lpush(lKey, value, cb);
 };
 // 向列表右侧(尾部)压入一个值
 RedisClient.prototype.lRPush = function(lKey, value, cb) {

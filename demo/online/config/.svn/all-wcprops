@@ -1,7 +1,7 @@
 K 25
 svn:wc:ra_dav:version-url
-V 48
-/nodejs-framework/!svn/ver/68/demo/online/config
+V 49
+/nodejs-framework/!svn/ver/127/demo/online/config
 END
 server.js
 K 25
@@ -12,8 +12,8 @@ END
 game.js
 K 25
 svn:wc:ra_dav:version-url
-V 56
-/nodejs-framework/!svn/ver/68/demo/online/config/game.js
+V 57
+/nodejs-framework/!svn/ver/127/demo/online/config/game.js
 END
 log4js.json
 K 25

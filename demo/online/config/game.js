@@ -15,7 +15,7 @@ config.ws_handler_dir = './app/wsHandlers/';    // websocket协议处理器, 绝
 config.tcp_handler_dir = '';                    // ./app/tcpHandlers/';   // 如果协议格式、处理逻辑一样，则可以配置成一样的, 空则忽略
 config.http_handler_dir = '';                   // ./app/httpHandlers/';  // 如果协议格式、处理逻辑一样，则可以配置成一样的, 空则忽略
 
-// 此配置必须
+// 此配置可选 - 是否用 redis做管理中心
 config.redis = {
   host: '10.1.1.248',
   port: 6379,

@@ -79,7 +79,7 @@ TCPServer.prototype.tmStart = function () {
 
       if (typeof socket.tmClose !== 'function') {
         socket.tmClose = ()=>{
-          if (socket.isAlive === false) socket.destroy();
+          if (typeof socket.destroy === 'function') socket.destroy();
           delete self.clients[socket._clientId];
         };
       }

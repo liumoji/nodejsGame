@@ -2,7 +2,6 @@
 const http = require("http");
 const https = require("https");
 const Url = require("url");
-const util = require("util");
 const querystring = require("querystring");
 
 const logger = require("../utils/logger.js");
@@ -12,7 +11,7 @@ const f_debug = false;
 const httpClient = {};
 
 function maybeCallback(cb) {
-  return util.isFunction(cb) ? cb : rethrow();
+  return typeof cb === 'function' ? cb : rethrow();
 }
 
 function rethrow() {
@@ -90,34 +89,118 @@ formatType.encode = function (format, data) {
   return formatType.encodeFuncs[format](data);
 };
 
-httpClient.httpsGetJson = function (url, callback) {
-  this._httpGet(https, url, formatType.JSON, callback);
-};
+/////////方便外部直接调用的 API 
+// Getxxxxx
+httpClient.Get = function (url, format, callback) {
+  if (url.toLowerCase().indexOf('https') === 0) {
+    httpClient.httpsGet(url, format, callback);
+  }
+  else {
+    httpClient.httpGet(url, format, callback);
+  }
+}
+httpClient.GetJson = function (url, callback) {
+  if (url.toLowerCase().indexOf('https') === 0) {
+    httpClient.httpsGetJson(url, callback);
+  }
+  else {
+    httpClient.httpGetJson(url, callback);
+  }
+}
+httpClient.GetQueryString = function (url, callback) {
+  if (url.toLowerCase().indexOf('https') === 0) {
+    httpClient.httpsGetQueryString(url, callback);
+  }
+  else {
+    httpClient.httpGetQueryString(url, callback);
+  }
+}
 
-httpClient.httpsGetQueryString = function (url, callback) {
-  this._httpGet(https, url, formatType.QueryString, callback);
-};
+// Postxxxxx
+httpClient.Post = function (url, data, requestFormat, responseFormat, callback) {
+  if (url.toLowerCase().indexOf('https') === 0) {
+    httpClient.httpsPost(url, data, requestFormat, responseFormat, callback);
+  }
+  else {
+    httpClient.httpPost(url, data, requestFormat, responseFormat, callback);
+  }
+}
+httpClient.PostJson = function (url, data, callback) {
+  if (url.toLowerCase().indexOf('https') === 0) {
+    httpClient.httpsPostJson(url, data, callback);
+  }
+  else {
+    httpClient.httpPostJson(url, data, callback);
+  }
+}
+httpClient.PostXML = function (url, data, callback) {
+  if (url.toLowerCase().indexOf('https') === 0) {
+    httpClient.httpsPostXML(url, data, callback);
+  }
+  else {
+    httpClient.httpPostXML(url, data, callback);
+  }
+}
+httpClient.PostQueryString = function (url, data, callback) {
+  if (url.toLowerCase().indexOf('https') === 0) {
+    httpClient.httpsPostQueryString(url, data, callback);
+  }
+  else {
+    httpClient.httpPostQueryString(url, data, callback);
+  }
+}
+httpClient.PostQueryStringReJson = function (url, data, callback) {
+  if (url.toLowerCase().indexOf('https') === 0) {
+    httpClient.httpsPostQueryStringReJson(url, data, callback);
+  }
+  else {
+    httpClient.httpPostQueryStringReJson(url, data, callback);
+  }
+}
+httpClient.PostFormQueryStringReJson = function (url, data, callback) {
+  if (url.toLowerCase().indexOf('https') === 0) {
+    httpClient.httpsPostFormQueryStringReJson(url, data, callback);
+  }
+  else {
+    httpClient.httpPostFormQueryStringReJson(url, data, callback);
+  }
+}
 
-httpClient.httpGetJson = function (url, callback) {
-  this._httpGet(http, url, formatType.JSON, callback);
-};
+// 内部https及https实现方式
 
+//////////////////////////////////////////////////////////////////////////////
+/////////// Get
 httpClient.httpsGet = function (url, format, callback) {
   let cb = maybeCallback(arguments[arguments.length - 1]);
-  if (util.isFunction(format) || !format) { format = formatType.Buffer; }
-  this._httpGet(https, url, format, cb);
+  if (typeof format === 'function' || !format) { format = formatType.Buffer; }
+  httpClient._httpGet(https, url, format, cb);
 };
-
 httpClient.httpGet = function (url, format, callback) {
   let cb = maybeCallback(arguments[arguments.length - 1]);
-  if (util.isFunction(format) || !format) { format = formatType.Buffer; }
-  this._httpGet(http, url, format, cb);
+  if (typeof format === 'function' || !format) { format = formatType.Buffer; }
+  httpClient._httpGet(http, url, format, cb);
+};
+
+/////////// GetJson
+httpClient.httpsGetJson = function (url, callback) {
+  httpClient._httpGet(https, url, formatType.JSON, callback);
+};
+httpClient.httpGetJson = function (url, callback) {
+  httpClient._httpGet(http, url, formatType.JSON, callback);
+};
+
+/////////// GetQueryString
+httpClient.httpsGetQueryString = function (url, callback) {
+  httpClient._httpGet(https, url, formatType.QueryString, callback);
+};
+httpClient.httpGetQueryString = function (url, callback) {
+  httpClient._httpGet(http, url, formatType.QueryString, callback);
 };
 
 httpClient._httpGet = function (httpObj, url, format, callback) {
   logger.trace(`http get request url: ${url}`);
   let cb = maybeCallback(arguments[arguments.length - 1]);
-  if (util.isFunction(format) || !format) { format = formatType.Buffer; }
+  if (typeof format === 'function' || !format) { format = formatType.Buffer; }
 
   let req = httpObj.get(url, function (res) {
     let dataChunks = null;
@@ -131,10 +214,11 @@ httpClient._httpGet = function (httpObj, url, format, callback) {
         let result;
         try {
           let result = formatType.decode(format, buf);
-          if (f_debug)
+          if (f_debug) {
             logger.trace(`http GET url: ${url}, ` +
               `response data: ${format}, ` +
               JSON.stringify(result));
+          }
           cb(null, result);
         } catch (err) {
           logger.error(`http GET url: ${url}, ` +
@@ -155,72 +239,72 @@ httpClient._httpGet = function (httpObj, url, format, callback) {
   req.end();
 };
 
-
-httpClient.httpsPostXML = function (url, data, callback) {
-  this._httpPost(https, url, data, formatType.XML, formatType.XML, callback);
-};
-
-httpClient.httpPostXML = function (url, data, callback) {
-  this._httpPost(http, url, data, formatType.XML, formatType.XML, callback);
-};
-
-httpClient.httpsPostJson = function (url, data, callback) {
-  this._httpPost(https, url, data, formatType.JSON, formatType.JSON, callback);
-};
-
-httpClient.httpPostJson = function (url, data, callback) {
-  this._httpPost(http, url, data, formatType.JSON, formatType.JSON, callback);
-};
-
-httpClient.httpsPostQueryString = function (url, data, callback) {
-  this._httpPost(https, url, data, formatType.QueryString, formatType.QueryString, callback);
-};
-
-httpClient.httpPostQueryString = function (url, data, callback) {
-  this._httpPost(http, url, data, formatType.QueryString, formatType.QueryString, callback);
-};
-
-httpClient.httpsPostQueryStringReJson = function (url, data, callback) {
-  this._httpPost(https, url, data, formatType.QueryString, formatType.JSON, callback);
-};
-
-httpClient.httpPostQueryStringReJson = function (url, data, callback) {
-  this._httpPost(http, url, data, formatType.QueryString, formatType.JSON, callback);
-};
-
-httpClient.httpsPostFormQueryStringReJson = function (url, data, callback) {
-  this._httpPostContentType(https, url, data, httpContentType.FORM, formatType.QueryString, formatType.JSON, callback);
-};
-
-httpClient.httpPostFormQueryStringReJson = function (url, data, callback) {
-  this._httpPostContentType(http, url, data, httpContentType.FORM, formatType.QueryString, formatType.JSON, callback);
-};
-
+//////////////////////////////////////////////////////////////////////////////
+/////////// Post
 httpClient.httpsPost = function (url, data, requestFormat, responseFormat, callback) {
   let cb = maybeCallback(arguments[arguments.length - 1]);
-  if (util.isFunction(requestFormat) || !requestFormat) { requestFormat = formatType.Buffer; }
-  if (util.isFunction(responseFormat) || !responseFormat) { responseFormat = formatType.Buffer; }
-  this._httpPost(https, url, data, requestFormat, responseFormat, cb);
+  if (typeof requestFormat === 'function' || !requestFormat) { requestFormat = formatType.Buffer; }
+  if (typeof responseFormat === 'function' || !responseFormat) { responseFormat = formatType.Buffer; }
+  httpClient._httpPost(https, url, data, requestFormat, responseFormat, cb);
 };
-
 httpClient.httpPost = function (url, data, requestFormat, responseFormat, callback) {
   let cb = maybeCallback(arguments[arguments.length - 1]);
-  if (util.isFunction(requestFormat) || !requestFormat) { requestFormat = formatType.Buffer; }
-  if (util.isFunction(responseFormat) || !responseFormat) { responseFormat = formatType.Buffer; }
-  this._httpPost(http, url, data, requestFormat, responseFormat, cb);
+  if (typeof requestFormat === 'function' || !requestFormat) { requestFormat = formatType.Buffer; }
+  if (typeof responseFormat === 'function' || !responseFormat) { responseFormat = formatType.Buffer; }
+  httpClient._httpPost(http, url, data, requestFormat, responseFormat, cb);
+};
+
+/////////// PostJson 
+httpClient.httpsPostJson = function (url, data, callback) {
+  httpClient._httpPost(https, url, data, formatType.JSON, formatType.JSON, callback);
+};
+httpClient.httpPostJson = function (url, data, callback) {
+  httpClient._httpPost(http, url, data, formatType.JSON, formatType.JSON, callback);
+};
+
+/////////// PostXML 
+httpClient.httpsPostXML = function (url, data, callback) {
+  httpClient._httpPost(https, url, data, formatType.XML, formatType.XML, callback);
+};
+httpClient.httpPostXML = function (url, data, callback) {
+  httpClient._httpPost(http, url, data, formatType.XML, formatType.XML, callback);
+};
+
+/////////// PostQueryString 
+httpClient.httpsPostQueryString = function (url, data, callback) {
+  httpClient._httpPost(https, url, data, formatType.QueryString, formatType.QueryString, callback);
+};
+httpClient.httpPostQueryString = function (url, data, callback) {
+  httpClient._httpPost(http, url, data, formatType.QueryString, formatType.QueryString, callback);
+};
+
+/////////// PostQueryStringReJson
+httpClient.httpsPostQueryStringReJson = function (url, data, callback) {
+  httpClient._httpPost(https, url, data, formatType.QueryString, formatType.JSON, callback);
+};
+httpClient.httpPostQueryStringReJson = function (url, data, callback) {
+  httpClient._httpPost(http, url, data, formatType.QueryString, formatType.JSON, callback);
+};
+
+/////////// PostFormQueryStringReJson
+httpClient.httpsPostFormQueryStringReJson = function (url, data, callback) {
+  httpClient._httpPostContentType(https, url, data, httpContentType.FORM, formatType.QueryString, formatType.JSON, callback);
+};
+httpClient.httpPostFormQueryStringReJson = function (url, data, callback) {
+  httpClient._httpPostContentType(http, url, data, httpContentType.FORM, formatType.QueryString, formatType.JSON, callback);
 };
 
 httpClient._httpPost = function (httpObj, url, data, requestFormat, responseFormat, callback) {
   let cb = maybeCallback(arguments[arguments.length - 1]);
-  if (util.isFunction(requestFormat) || !requestFormat) { requestFormat = formatType.Buffer; }
-  if (util.isFunction(responseFormat) || !responseFormat) { responseFormat = formatType.Buffer; }
-  this._httpPostContentType(httpObj, url, data, undefined, requestFormat, responseFormat, cb);
+  if (typeof requestFormat === 'function' || !requestFormat) { requestFormat = formatType.Buffer; }
+  if (typeof responseFormat === 'function' || !responseFormat) { responseFormat = formatType.Buffer; }
+  httpClient._httpPostContentType(httpObj, url, data, undefined, requestFormat, responseFormat, cb);
 };
 
 httpClient._httpPostContentType = function (httpObj, url, data, contentType, requestFormat, responseFormat, callback) {
   let cb = maybeCallback(arguments[arguments.length - 1]);
-  if (util.isFunction(requestFormat) || !requestFormat) { requestFormat = formatType.Buffer; }
-  if (util.isFunction(responseFormat) || !responseFormat) { responseFormat = formatType.Buffer; }
+  if (typeof requestFormat === 'function' || !requestFormat) { requestFormat = formatType.Buffer; }
+  if (typeof responseFormat === 'function' || !responseFormat) { responseFormat = formatType.Buffer; }
   let uri = Url.parse(url);
   let opt = {
     hostname: uri.hostname,
@@ -255,10 +339,11 @@ httpClient._httpPostContentType = function (httpObj, url, data, contentType, req
         let resErr;
         try {
           result = formatType.decode(responseFormat, buf);
-          if (f_debug)
+          if (f_debug) {
             logger.trace(`http POST url: ${url}, ` +
               `response data: ${responseFormat}, ` +
               JSON.stringify(result));
+          }
         } catch (err) {
           logger.error(`http POST url: ${url}, ` +
             `responseFormat: ${responseFormat}, ` +

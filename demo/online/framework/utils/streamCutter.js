@@ -148,9 +148,9 @@ streamCutter.parseMessageData = function(buffer, dataLen, option){
   return msgDataInfo;
 };
 
-const MAX_NETWORK_REQ_SPEED = 2;  // KB/sec
-const MAX_NETWORK_REQ_FREQ = 32;  // times/sec
-const CHECK_TIME_SPAN = 10;       // sec
+const MAX_NETWORK_REQ_SPEED = 5;  // KB/sec
+const MAX_NETWORK_REQ_FREQ = 60;  // times/sec
+const CHECK_TIME_SPAN = 15;       // sec
 // 计算 10 秒平均网速, 平均请求次数，过大的认为客户端非法，关闭
 streamCutter.check_ws_network_speed = function(ws, new_len) {
   if (!ws) {

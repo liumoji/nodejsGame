@@ -1,13 +1,13 @@
 K 25
 svn:wc:ra_dav:version-url
 V 50
-/nodejs-framework/!svn/ver/103/framework/trunk/net
+/nodejs-framework/!svn/ver/176/framework/trunk/net
 END
 TCPClient.js
 K 25
 svn:wc:ra_dav:version-url
-V 62
-/nodejs-framework/!svn/ver/83/framework/trunk/net/TCPClient.js
+V 63
+/nodejs-framework/!svn/ver/129/framework/trunk/net/TCPClient.js
 END
 ConnectNetClass.js
 K 25
@@ -24,8 +24,8 @@ END
 WSClient.js
 K 25
 svn:wc:ra_dav:version-url
-V 61
-/nodejs-framework/!svn/ver/92/framework/trunk/net/WSClient.js
+V 62
+/nodejs-framework/!svn/ver/176/framework/trunk/net/WSClient.js
 END
 HttpClientSimple.js
 K 25
@@ -42,24 +42,24 @@ END
 TCPServer.js
 K 25
 svn:wc:ra_dav:version-url
-V 62
-/nodejs-framework/!svn/ver/83/framework/trunk/net/TCPServer.js
+V 63
+/nodejs-framework/!svn/ver/123/framework/trunk/net/TCPServer.js
 END
 HttpClient.js
 K 25
 svn:wc:ra_dav:version-url
 V 64
-/nodejs-framework/!svn/ver/103/framework/trunk/net/HttpClient.js
+/nodejs-framework/!svn/ver/133/framework/trunk/net/HttpClient.js
 END
 NetApi.js
 K 25
 svn:wc:ra_dav:version-url
-V 59
-/nodejs-framework/!svn/ver/92/framework/trunk/net/NetApi.js
+V 60
+/nodejs-framework/!svn/ver/109/framework/trunk/net/NetApi.js
 END
 WSServer.js
 K 25
 svn:wc:ra_dav:version-url
-V 61
-/nodejs-framework/!svn/ver/92/framework/trunk/net/WSServer.js
+V 62
+/nodejs-framework/!svn/ver/176/framework/trunk/net/WSServer.js
 END

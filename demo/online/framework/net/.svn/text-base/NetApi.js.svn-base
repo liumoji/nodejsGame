@@ -57,7 +57,7 @@ NetApi.prototype.tmSendData = function (data) {
 };
 
 NetApi.prototype.tmClose = function () {
-  // TODO: 子类中实现
+  // 在具体子类中实现
 }
 
 module.exports = NetApi;

@@ -85,7 +85,7 @@ TCPClient.prototype.connect = function () {
       // 断线重连...
       if (self.opt.reconnect) {
         let tm = self.opt.reconnect || 6000;
-        logger.warn(self.side + " socket with remote " + self.socket._strRemote + ' will be reconnect in ' + tm + 'ms');
+        logger.warn(`${self.side} socket with remote ${self.ws._strRemote} will be reconnect in ${tm}ms`);
         setTimeout(()=>{
           if (!self.socket) {
             self.connect().then(p=>{
