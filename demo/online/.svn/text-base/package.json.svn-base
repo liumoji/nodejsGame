@@ -1,0 +1,23 @@
+{
+  "name": "online",
+  "version": "0.0.1",
+  "description": "game demo of nodejs-framework for online",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "game",
+    "demo",
+    "nodejs",
+    "framework"
+  ],
+  "author": "taomee.com",
+  "license": "ISC",
+  "dependencies": {
+    "log4js": "~1.1.1",
+    "mysql": "2.16.0",
+    "redis": "2.8.0",
+    "ws": "6.0.0"
+  }
+}

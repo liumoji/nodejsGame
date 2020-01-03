@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/nodejs-framework/!svn/ver/107/framework/trunk/redis
+END
+RedisClient.js
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/nodejs-framework/!svn/ver/14/framework/trunk/redis/RedisClient.js
+END
+GameRedis.js
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/nodejs-framework/!svn/ver/107/framework/trunk/redis/GameRedis.js
+END
